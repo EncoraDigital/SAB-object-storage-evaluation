@@ -1,0 +1,96 @@
+---
+# Before using the playbook, please configure the variables and hosts-inventory file
+# run the playbook with the argument "-i hosts-inventory"
+# the bootstrap and cluster instances (declared in the hosts-inventory file) needs a user with passwordless root
+#(if deploying on ec2/ubuntu instances, the user 'ubuntu' already meets those requirements)
+# the pem file declared in the variables.yml file must provide ssh access to all of the cluster instances.
+# hosts need to be able to access each other (Ex. Configure AWS security group to allow connections between the cluster instances)
+# After deployment, the bootstrap instance won't be needed. The cluster can be managed through the instance designed as admin.
+
+- hosts: bootstrap_host
+  vars_files:
+    # Edit the file variables.yml with the correct values.
+     - variables.yml
+  tasks:
+    - name: install python on bootstrap instance
+      raw:  apt update && apt install -y python
+      become: true
+
+    - name: copy ssh key to the admin instance
+      copy:
+        src: "{{playbook_dir}}/{{ansible_ssh_private_key_file}}"
+        dest: ~/.ssh/id_rsa
+        mode: '0600'
+
+    - name: install python on cluster instances
+      shell: ssh -o "StrictHostKeyChecking no" "{{item}}" "sudo apt update && sudo apt install -y python"
+      loop: "{{nodes}}"
+
+    - name: Purge old installations
+      shell: ceph-deploy purge {{item}}
+      loop: "{{nodes}}"
+
+    - name: Purge data of old installations
+      shell: ceph-deploy purgedata {{item}}
+      loop: "{{nodes}}"
+
+    - name: Install ceph-deploy
+      apt: pkg=ceph-deploy state=present update_cache=true
+      become: true
+
+    - name: prepare for ssh connections- step one
+      shell: ssh -o "StrictHostKeyChecking no" "{{item}}" "echo ok"
+      loop: "{{nodes}}"
+
+    - name: Create cluster
+      shell: ceph-deploy new {{mon_hosts}}
+
+
+    - name: install ceph on the cluster instances
+      shell: ceph-deploy --username "{{username}}" install "{{item}}"
+      loop: "{{nodes}}"
+
+
+    - name: prepare for ssh connections- step two
+      shell: ssh -o "StrictHostKeyChecking no" "{{item | regex_search('.+?(?=\.)')}}"  "echo ok"
+      loop: "{{nodes}}"
+
+
+    - name: create initial mon cluster
+      shell: ceph-deploy --username "{{username}}" --overwrite-conf mon create-initial
+
+
+    - name: deploy administration nodes (nodes where the ceph command-line client will be available)
+      shell: ceph-deploy --username "{{username}}" --overwrite-conf admin {{admin_nodes}}
+
+
+    - name: deploy mrgs
+      shell: ceph-deploy --username "{{username}}" --overwrite-conf mgr create {{mgr_hosts}}
+
+
+    - name: deploy rgw
+      shell: ceph-deploy --username "{{username}}" --overwrite-conf rgw create {{rgw_hosts}}
+
+# Use to automatically create partitions on the drives
+#    - name: ZAP osds disks
+#      shell: ceph-deploy --username "{{username}}" disk zap "{{item}}"
+#      loop: "{{osd_hosts}}"
+
+#    - name: prepare osds
+#      shell: ceph-deploy --username "{{username}}" osd prepare "{{item}}"
+#      loop: "{{osd_hosts}}"
+##############
+
+# Use if drive partitions were manually created
+    - name: create osds
+      shell: ceph-deploy --username "{{username}}" --overwrite-conf osd create "{{item}}"
+      loop: "{{osd_hosts}}"
+
+    - name: activate osds
+      shell: ceph-deploy --username "{{username}}" --overwrite-conf osd activate "{{item}}"
+      loop: "{{osd_hosts}}"
+#############
+
+   
+
+

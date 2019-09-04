@@ -1,0 +1,9 @@
+{
+    "test_files_folder_name": "test_files",
+    "csv_results_file_name": "results.csv",
+    "bucket": "my_bucket",
+    "aws_access_key_id": "removed",
+    "aws_secret_access_key": "removed",
+    "multipart_transfer_threshold_mb": 16,
+    "region_name": "us-east-2"
+}

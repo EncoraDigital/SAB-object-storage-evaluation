@@ -1,0 +1,34 @@
+# A user with ssh/ passwordless root access to the cluster instances is required. 
+
+username: ubuntu
+
+# the name of the private_key used for access to the bootstrap and cluster instances
+# it should be located on the same directory as the playbook
+ansible_ssh_private_key_file: id_rsa
+
+# List all cluster instances here, used for common configuration (no need to add the bootstrap instance)
+nodes:
+        - internal_instance_hostname_one
+        - internal_instance_hostname_two
+        - internal_instance_hostname_three
+
+# Put all mon hosts on the same line, separating them with a space. At least one mon host is required, a deployment of one odd number of mons is advised (quorum needs a majority)
+mon_hosts: internal_instance_hostname_one internal_instance_hostname_two internal_instance_hostname_three
+
+
+#Add the OSD devices below, one in each line. If the devices are already partitioned, use the commands "osd create/ activate" instead of "disk ZAP/ prepare" in the playbook.
+osd_hosts:
+        - internal_instance_hostname_one:/dev/sda1
+        - internal_instance_hostname_two:/dev/sda2
+        - internal_instance_hostname_two:/dev/sda1
+        - internal_instance_hostname_three:/dev/sda1
+
+
+# RGW API hosts, at least one is required for use with the S3 API. Add all to the same line, separating them with a space.
+rgw_hosts: internal_instance_hostname_one
+
+# Manager hosts, at least one is required. Add all to the same line, separating them with a space.
+mgr_hosts: internal_instance_hostname_one internal_instance_hostname_two internal_instance_hostname_three
+
+# nodes where the Ceph command-line client will be available. Add all to the same line, separating them with a space.
+admin_nodes: internal_instance_hostname_one internal_instance_hostname_two internal_instance_hostname_three

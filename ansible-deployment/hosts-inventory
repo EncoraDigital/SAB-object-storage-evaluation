@@ -1,0 +1,3 @@
+#bootstrap host must be able to contact the cluster instances through their local IP. Adding the private key file and #the user with permissions to connect to the instance through ssh in front of the host, as shown:
+[bootstrap_host]
+your_bootstrap_host_address ansible_ssh_private_key_file=./id_rsa ansible_user=ubuntu
