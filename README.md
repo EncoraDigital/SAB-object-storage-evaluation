@@ -1,6 +1,6 @@
 # Object storage evaluation
 
-*This test was originally executed as part of an analysis for the article *Storing and retrieving Machine Learning models at scale with Distributed Object Storage*.
+*This test was originally executed as part of an analysis for the article Storing and retrieving Machine Learning models at scale with Distributed Object Storage*.
 
 The test was designed to measure the bandwidth of S3 compatible solutions from the perspective of a normal user downloading one file at a time.
 
