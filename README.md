@@ -1,10 +1,12 @@
 # Object storage evaluation
 
-This test was designed to measure the bandwidth of S3 compatible solutions from the perspective of a normal user, downloading one file at a time.
+*This test was originally executed as part of an analysis for the article *Storing and retrieving Machine Learning models at scale with Distributed Object Storage*.
 
-Parameters, as well as fields for credentials,  are is available in the file *config.json*. 
+The test was designed to measure the bandwidth of S3 compatible solutions from the perspective of a normal user downloading one file at a time.
 
-To execute this test, simply add a folder containing test files to this directory, and set the parameter *test_files_folder_name* to be equal to the name of the folder. 
+Parameters, as well as fields for credentials, are available in the file *config.json*. 
+
+To execute this test, simply add a folder containing the test files to this directory, and set the parameter *test_files_folder_name* to be equal to the name of the folder. 
 
 Upon execution of the script, all files located in the folder will be uploaded and then downloaded from the chosen bucket, and results will be saved to a file with the name specified in the parameter *csv_results_file_name*.
 
